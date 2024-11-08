@@ -10,6 +10,8 @@ private:
 protected:
 	T getFlux();
 	std::vector<T> readFromFile(std::string filename);
+public:
+	Monitor();
 };
 
 template <>
