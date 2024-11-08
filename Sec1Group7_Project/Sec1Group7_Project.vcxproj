@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="LightsColor.h" />
     <ClInclude Include="Monitor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="color.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
