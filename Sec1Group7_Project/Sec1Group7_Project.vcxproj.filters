@@ -24,5 +24,11 @@
     <ClInclude Include="FanSpeedMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CPUmonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TempMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
