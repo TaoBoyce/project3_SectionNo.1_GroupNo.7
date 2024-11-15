@@ -8,7 +8,6 @@ private:
 	int speedRPM;
 public:
 	FanSpeedMonitor();
-	FanSpeedMonitor(std::string filename);
 	int getRPM();
 	bool setRPM(int rpm);
 	int getFluctuatingRPM();
