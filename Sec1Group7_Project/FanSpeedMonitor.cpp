@@ -2,8 +2,14 @@
 
 FanSpeedMonitor::FanSpeedMonitor()
 {
-	readFromFile(FAN_FILE);
 	setRPM(0);
+	readFromFile(FAN_FILE);
+}
+
+FanSpeedMonitor::FanSpeedMonitor(std::string filename)
+{
+	setRPM(0);
+	readFromFile(filename);
 }
 
 int FanSpeedMonitor::getRPM()
