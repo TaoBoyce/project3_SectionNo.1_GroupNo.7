@@ -12,41 +12,10 @@
 #define new DEBUG_NEW
 #endif
 
-// CAboutDlg dialog used for App About
-class CAboutDlg : public CDialogEx
-{
-public:
-	CAboutDlg();
-
-	// Dialog Data
-#ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
-#endif
-
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-	// Implementation
-protected:
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
-{
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialogEx::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-END_MESSAGE_MAP()
-
 // CMFCApplication1Dlg dialog
 CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCAPPLICATION1_DIALOG, pParent),
-	m_cpuLimit(100), m_overrideFanSpeed(false)
+	m_cpuLimit(100), m_powerLimit(100), m_overrideFanSpeed(false), m_overridePower(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -60,11 +29,11 @@ void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GPU2, m_gpuProgress);
 	DDX_Control(pDX, IDC_FAN, m_fanProgress);
 	DDX_Control(pDX, IDC_TEMP, m_tempProgress);
+	DDX_Control(pDX, IDC_POWER, m_powerProgress);
 	DDX_Control(pDX, IDC_EDIT1, m_editLimit);
 	DDX_Control(pDX, IDC_EDIT2, m_editFanSpeed);
+	DDX_Control(pDX, IDC_EDIT3, m_editPowerLimit);
 }
-
-
 
 BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
@@ -75,6 +44,9 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CMFCApplication1Dlg::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_EDIT1, &CMFCApplication1Dlg::OnEnChangeEdit1)
 	ON_EN_CHANGE(IDC_EDIT2, &CMFCApplication1Dlg::OnEnChangeEdit2)
+	ON_EN_CHANGE(IDC_EDIT3, &CMFCApplication1Dlg::OnEnChangeEdit3)
+	ON_BN_CLICKED(IDC_WIFION, &CMFCApplication1Dlg::OnBnClickedWifiOn)
+	ON_BN_CLICKED(IDC_WIFIOFF, &CMFCApplication1Dlg::OnBnClickedWifiOff)
 END_MESSAGE_MAP()
 
 BOOL CMFCApplication1Dlg::OnInitDialog()
@@ -86,6 +58,11 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	m_gpuProgress.SetRange(0, 100);
 	m_fanProgress.SetRange(0, 100);
 	m_tempProgress.SetRange(0, 100);
+	m_powerProgress.SetRange(0, 100);
+	// Initialize the WiFi progress bar and state
+	m_wifiProgress.SetRange(0, 100);
+	m_wifiProgress.SetPos(0);
+	m_isWifiOn = true; // Default: WiFi reading is active
 
 	// Start timer for updates
 	SetTimer(1, 500, nullptr); // 500ms interval
@@ -101,6 +78,8 @@ void CMFCApplication1Dlg::OnTimer(UINT_PTR nIDEvent)
 		UpdateGPUProgress();
 		UpdateFanProgress();
 		UpdateTempProgress();
+		UpdatePowerProgress();
+		UpdateWiFiProgress(); // Add WiFi update logic
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
@@ -186,7 +165,57 @@ void CMFCApplication1Dlg::UpdateTempProgress()
 	}
 }
 
+void CMFCApplication1Dlg::UpdatePowerProgress()
+{
+	if (m_overridePower)
+	{
+		return; // Use manually set power value
+	}
 
+	std::ifstream file("power_usage.txt");
+	if (file.is_open())
+	{
+		int powerUsage;
+		file >> powerUsage;
+		file.close();
+
+		m_powerProgress.SetPos(powerUsage);
+	}
+}
+
+void CMFCApplication1Dlg::UpdateWiFiProgress()
+{
+	if (!m_isWifiOn) // Stop updating if WiFi is off
+		return;
+
+	static int wifiValue = 0; // Example: WiFi usage value from the file
+	CStdioFile file;
+	CString line;
+
+	// Open and read the WiFi data file
+	if (file.Open(_T("wifi_data.txt"), CFile::modeRead | CFile::typeText))
+	{
+		if (file.ReadString(line))
+		{
+			wifiValue = _ttoi(line); // Convert to integer
+			m_wifiProgress.SetPos(wifiValue); // Update the progress bar
+		}
+		file.Close();
+	}
+	else
+	{
+		// Handle error if file is not found
+		AfxMessageBox(_T("WiFi data file not found!"), MB_ICONERROR);
+		m_isWifiOn = false; // Stop updating
+	}
+}
+
+
+void CMFCApplication1Dlg::OnDestroy()
+{
+	KillTimer(1);
+	CDialogEx::OnDestroy();
+}
 
 void CMFCApplication1Dlg::OnEnChangeEdit1()
 {
@@ -212,6 +241,30 @@ void CMFCApplication1Dlg::OnEnChangeEdit2()
 		m_overrideFanSpeed = true;
 	}
 }
+
+void CMFCApplication1Dlg::OnEnChangeEdit3()
+{
+	CString strValue;
+	m_editPowerLimit.GetWindowText(strValue);
+	int powerLimit = _ttoi(strValue);
+
+	if (powerLimit >= 0 && powerLimit <= 100)
+	{
+		m_powerProgress.SetPos(powerLimit);
+		m_overridePower = true;
+	}
+}
+
+void CMFCApplication1Dlg::OnBnClickedWifiOn()
+{
+	m_isWifiOn = true; // Enable WiFi reading
+}
+
+void CMFCApplication1Dlg::OnBnClickedWifiOff()
+{
+	m_isWifiOn = false; // Disable WiFi reading
+}
+
 
 void CMFCApplication1Dlg::OnBnClickedOk()
 {

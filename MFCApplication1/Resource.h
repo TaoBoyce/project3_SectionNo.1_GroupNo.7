@@ -13,12 +13,14 @@
 #define IDC_POWER                       1004
 #define IDC_LIGHT                       1005
 #define IDC_WIFI                        1006
+#define Power                           1006
 #define IDC_WIFION                      1007
 #define IDC_WIFIOFF                     1008
 #define IDC_EDIT1                       1009
 #define IDC_EDIT2                       1010
 #define IDC_EDIT3                       1011
 #define IDC_EDIT4                       1012
+#define IDC_WIFI2                       1013
 #define IDC_GPU                         1014
 #define IDC_TEMP                        1014
 #define IDC_PROGRESS1                   1015
