@@ -26,14 +26,19 @@
 #define IDC_PROGRESS1                   1015
 #define IDC_GPU2                        1016
 #define IDC_GPU4                        1018
+#define IDC_BLUE                        1021
+#define IDC_GREEN                       1022
+#define IDC_RED                         1023
+#define IDC_BUTTON4                     1024
+#define IDC_PURPLE                      1024
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

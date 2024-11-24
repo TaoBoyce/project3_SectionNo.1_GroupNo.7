@@ -27,10 +27,13 @@ protected:
 	CProgressCtrl m_powerProgress;
 	CProgressCtrl m_wifiProgress; // WiFi progress bar
 
+
+
 	// Controls for manual input
 	CEdit m_editLimit;       // For CPU limit
 	CEdit m_editFanSpeed;    // For fan speed input
 	CEdit m_editPowerLimit;
+
 
 	// Function to update CPU progress
 	void UpdateCPUProgress();  // Add the declaration of the function
@@ -39,31 +42,42 @@ protected:
 	void UpdateFanProgress();
 	void UpdatePowerProgress();
 	void UpdateWiFiProgress();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	// Member variables
 	int m_cpuLimit;          // CPU usage limit
 	int m_powerLimit;
 	bool m_overrideFanSpeed; // Flag to override fan speed input
 	bool m_overridePower;
-	bool m_isWifiOn;              // Tracks whether WiFi reading is active
+	bool m_isWifiOn;         // Tracks whether WiFi reading is active
+	bool m_bErrorDisplayed;
+	//CEdit m_editColor;  // For IDC_EDIT4 (text input)
+	//CStatic m_light31;  // For IDC_LIGHT31 (static text control)
+
+
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
-	//afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	//void OnPaint();
+
 	afx_msg void OnEnChangeEdit1();
 	afx_msg void OnEnChangeEdit2();
 	afx_msg void OnEnChangeEdit3();
+	afx_msg void OnBnClickedWifiOn();  // Handler for WiFi On button
+	afx_msg void OnBnClickedWifiOff(); // Handler for WiFi Off button
+	//afx_msg void OnBnClickedRed();
+	//afx_msg void OnBnClickedGreen();
+	//afx_msg void OnBnClickedBlue();
+	//afx_msg void OnBnClickedPurple();
+	//afx_msg void OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnDestroy();
-	afx_msg void OnBnClickedWifiOff();
-	afx_msg void OnBnClickedWifiOn();
 
-	//afx_msg HCURSOR OnQueryDragIcon();
+
 	DECLARE_MESSAGE_MAP()
 
 public:
 
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnTimer(UINT_PTR nIDEvent); // Timer event handler
-	afx_msg void OnEnChangeEdit3();
+
+
 };
 
