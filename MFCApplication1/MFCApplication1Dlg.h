@@ -26,7 +26,7 @@ protected:
 	CProgressCtrl m_tempProgress;
 	CProgressCtrl m_powerProgress;
 	CProgressCtrl m_wifiProgress; // WiFi progress bar
-
+	CProgressCtrl m_progressLight;
 
 
 	// Controls for manual input
@@ -51,8 +51,9 @@ protected:
 	bool m_overridePower;
 	bool m_isWifiOn;         // Tracks whether WiFi reading is active
 	bool m_bErrorDisplayed;
-	//CEdit m_editColor;  // For IDC_EDIT4 (text input)
-	//CStatic m_light31;  // For IDC_LIGHT31 (static text control)
+	int m_currentTemp;
+	int m_targetTemp;
+
 
 
 	// Generated message map functions
@@ -63,11 +64,10 @@ protected:
 	afx_msg void OnEnChangeEdit3();
 	afx_msg void OnBnClickedWifiOn();  // Handler for WiFi On button
 	afx_msg void OnBnClickedWifiOff(); // Handler for WiFi Off button
-	//afx_msg void OnBnClickedRed();
-	//afx_msg void OnBnClickedGreen();
-	//afx_msg void OnBnClickedBlue();
-	//afx_msg void OnBnClickedPurple();
-	//afx_msg void OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnBnClickedRed();
+	afx_msg void OnBnClickedGreen();
+	afx_msg void OnBnClickedBlue();
+	afx_msg void OnBnClickedPurple();
 	afx_msg void OnDestroy();
 
 
@@ -77,7 +77,5 @@ public:
 
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnTimer(UINT_PTR nIDEvent); // Timer event handler
-
-
 };
 

@@ -12,7 +12,8 @@
 // CMFCApplication1Dlg dialog
 CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCAPPLICATION1_DIALOG, pParent),
-	m_cpuLimit(100), m_powerLimit(100), m_overrideFanSpeed(false), m_overridePower(false)
+	m_cpuLimit(100), m_powerLimit(100), m_overrideFanSpeed(false), m_overridePower(false),
+	m_currentTemp(0), m_targetTemp(0) // Initialize temperature variables
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -31,6 +32,8 @@ void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT2, m_editFanSpeed);
 	DDX_Control(pDX, IDC_EDIT3, m_editPowerLimit);
 	DDX_Control(pDX, IDC_WIFI2, m_wifiProgress);
+	DDX_Control(pDX, IDC_LIGHT, m_progressLight);
+
 }
 
 BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
@@ -45,6 +48,10 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT3, &CMFCApplication1Dlg::OnEnChangeEdit3)
 	ON_BN_CLICKED(IDC_WIFION, &CMFCApplication1Dlg::OnBnClickedWifiOn)
 	ON_BN_CLICKED(IDC_WIFIOFF, &CMFCApplication1Dlg::OnBnClickedWifiOff)
+	ON_BN_CLICKED(IDC_RED, &CMFCApplication1Dlg::OnBnClickedRed)
+	ON_BN_CLICKED(IDC_GREEN, &CMFCApplication1Dlg::OnBnClickedGreen)
+	ON_BN_CLICKED(IDC_BLUE, &CMFCApplication1Dlg::OnBnClickedBlue)
+	ON_BN_CLICKED(IDC_PURPLE, &CMFCApplication1Dlg::OnBnClickedPurple)
 END_MESSAGE_MAP()
 
 BOOL CMFCApplication1Dlg::OnInitDialog()
@@ -59,6 +66,8 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	m_powerProgress.SetRange(0, 100);
 	m_wifiProgress.SetRange(0, 100);
 	m_isWifiOn = true;
+	m_progressLight.SetRange(0, 100); // Set range
+	m_progressLight.SetPos(100);
 
 	// Start timer for updates
 	SetTimer(1, 500, nullptr); // 500ms interval
@@ -135,20 +144,34 @@ void CMFCApplication1Dlg::UpdateTempProgress()
 	std::ifstream file("temperature.txt");
 	if (file.is_open())
 	{
+		// Read the temperature from the file
 		int temp;
 		file >> temp;
 		file.close();
 
-		m_tempProgress.SetPos(temp);
+		// If the temperature has changed, set the target temperature
+		if (temp != m_targetTemp)
+		{
+			m_targetTemp = temp;
+		}
 
-		// Change progress bar color based on temperature
+		// Gradually move towards the target temperature
+		if (m_currentTemp < m_targetTemp)
+			m_currentTemp++;  // Increase by 1
+		else if (m_currentTemp > m_targetTemp)
+			m_currentTemp--;  // Decrease by 1
+
+		// Update the progress bar with the new temperature
+		m_tempProgress.SetPos(m_currentTemp);
+
+		// Change progress bar color based on the current temperature
 		CWnd* pWnd = GetDlgItem(IDC_TEMP);
 		if (pWnd)
 		{
 			COLORREF color = RGB(0, 0, 255); // Blue
-			if (temp > 60)
+			if (m_currentTemp > 60)
 				color = RGB(255, 0, 0); // Red
-			else if (temp >= 50)
+			else if (m_currentTemp >= 50)
 				color = RGB(255, 165, 0); // Orange
 
 			CBrush brush(color);
@@ -316,4 +339,60 @@ BOOL CMFCApplication1Dlg::PreTranslateMessage(MSG* pMsg)
 
 	// Default handling for other messages
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+void CMFCApplication1Dlg::OnBnClickedRed()
+{
+	CWnd* pWnd = GetDlgItem(IDC_LIGHT);
+
+	COLORREF color = RGB(255, 0, 0); // Red
+
+	CBrush brush(color);
+	CClientDC dc(pWnd);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+	dc.FillRect(&rect, &brush);
+
+}
+
+
+void CMFCApplication1Dlg::OnBnClickedGreen()//
+{
+	CWnd* pWnd = GetDlgItem(IDC_LIGHT);
+
+	COLORREF color = RGB(0, 128, 0); // Red
+
+	CBrush brush(color);
+	CClientDC dc(pWnd);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+	dc.FillRect(&rect, &brush);
+}
+
+
+void CMFCApplication1Dlg::OnBnClickedBlue()
+{
+	CWnd* pWnd = GetDlgItem(IDC_LIGHT);
+
+	COLORREF color = RGB(0, 0, 255); // Red
+
+	CBrush brush(color);
+	CClientDC dc(pWnd);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+	dc.FillRect(&rect, &brush);
+}
+
+
+void CMFCApplication1Dlg::OnBnClickedPurple()
+{
+	CWnd* pWnd = GetDlgItem(IDC_LIGHT);
+
+	COLORREF color = RGB(128, 0, 128); // Red
+
+	CBrush brush(color);
+	CClientDC dc(pWnd);
+	CRect rect;
+	pWnd->GetClientRect(&rect);
+	dc.FillRect(&rect, &brush);
 }
