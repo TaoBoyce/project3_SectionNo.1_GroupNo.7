@@ -18,12 +18,17 @@
     <ClInclude Include="Monitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LightsColor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FanSpeedMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightsColor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Monitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FanSpeedMonitor.cpp">
