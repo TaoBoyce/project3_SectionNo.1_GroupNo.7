@@ -1,4 +1,6 @@
+#include <fstream>
 #pragma once
+
 
 // CMFCApplication1Dlg dialog
 class CMFCApplication1Dlg : public CDialogEx
@@ -53,6 +55,14 @@ protected:
 	bool m_bErrorDisplayed;
 	int m_currentTemp;
 	int m_targetTemp;
+	int m_previousTemp;
+
+	std::ifstream m_cpuFile;
+	std::ifstream m_gpuFile;
+	std::ifstream m_fanFile;
+	std::ifstream m_tempFile;
+	std::ifstream m_powerFile;
+	std::ifstream m_wifiFile;
 
 
 

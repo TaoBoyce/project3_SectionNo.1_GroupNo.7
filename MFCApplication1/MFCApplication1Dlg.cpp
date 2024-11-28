@@ -3,11 +3,15 @@
 #include "MFCApplication1.h"
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
-#include <fstream> // For file operations
+#include<string>
+// For file operations
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
+#define TEMP_UPDATE_TIMER 1
 #endif
+
+
 
 // CMFCApplication1Dlg dialog
 CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
@@ -69,15 +73,23 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	m_progressLight.SetRange(0, 100); // Set range
 	m_progressLight.SetPos(100);
 
+
+	m_cpuFile.open("cpu_usage.txt");
+	m_gpuFile.open("gpu_usage.txt");
+	m_fanFile.open("fan_speed.txt");
+	m_tempFile.open("temperature.txt");
+	m_powerFile.open("power_usage.txt");
+	m_wifiFile.open("wifi_data.txt");
+
 	// Start timer for updates
-	SetTimer(1, 500, nullptr); // 500ms interval
+	SetTimer(TEMP_UPDATE_TIMER, 1000, nullptr); // 500ms interval
 
 	return TRUE;
 }
 
 void CMFCApplication1Dlg::OnTimer(UINT_PTR nIDEvent)
 {
-	if (nIDEvent == 1) // Timer ID
+	if (nIDEvent == TEMP_UPDATE_TIMER) // Timer ID
 	{
 		UpdateCPUProgress();
 		UpdateGPUProgress();
@@ -92,32 +104,56 @@ void CMFCApplication1Dlg::OnTimer(UINT_PTR nIDEvent)
 
 void CMFCApplication1Dlg::UpdateCPUProgress()
 {
-	std::ifstream file("cpu_usage.txt"); // Reading CPU usage from the file
-	if (file.is_open())
+	if (m_cpuLimit)
 	{
-		int cpuUsage;
-		file >> cpuUsage; // Assuming the file contains a single integer value for CPU usage
-		file.close();
+		// Continue reading the file but do not change the progress bar if the fan speed is overridden.
+		std::string line;
+		if (std::getline(m_cpuFile, line))
+		{
+			int temp = std::stoi(line); // Process the temperature
+			if (temp < m_cpuLimit)
+			{
+				m_cpuProgress.SetPos(temp);
+			}
+			m_previousTemp = temp;
+		}
+	}
 
-		// Ensure the value is within the range 0 to 100
-		if (cpuUsage < 0) cpuUsage = 0;
-		if (cpuUsage > 100) cpuUsage = 100;
+	if (!m_cpuFile.is_open())
+	{
+		m_cpuFile.open("cpu_usage.txt");
+	}
 
-		// Update progress bar with the CPU usage value
-		m_cpuProgress.SetPos(cpuUsage);
+	std::string line;
+	if (std::getline(m_cpuFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+		m_cpuProgress.SetPos(temp);
+	}
+	else
+	{
+		m_cpuFile.clear(); // Clear EOF flag
+		m_cpuFile.seekg(0, std::ios::beg); // Reset to the beginning
 	}
 }
 
 void CMFCApplication1Dlg::UpdateGPUProgress()
 {
-	std::ifstream file("gpu_usage.txt");
-	if (file.is_open())
+	if (!m_gpuFile.is_open())
 	{
-		int gpuUsage;
-		file >> gpuUsage;
-		file.close();
+		m_gpuFile.open("gpu_usage.txt");
+	}
 
-		m_gpuProgress.SetPos(gpuUsage);
+	std::string line;
+	if (std::getline(m_gpuFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+		m_gpuProgress.SetPos(temp);
+	}
+	else
+	{
+		m_gpuFile.clear(); // Clear EOF flag
+		m_gpuFile.seekg(0, std::ios::beg); // Reset to the beginning
 	}
 }
 
@@ -125,61 +161,57 @@ void CMFCApplication1Dlg::UpdateFanProgress()
 {
 	if (m_overrideFanSpeed)
 	{
-		return; // Use manually set fan speed
+		// Continue reading the file but do not change the progress bar if the fan speed is overridden.
+		std::string line;
+		if (std::getline(m_fanFile, line))
+		{
+			int temp = std::stoi(line); // Process the temperature
+			if (temp < m_overrideFanSpeed)
+			{
+				m_fanProgress.SetPos(temp);
+			}
+			m_previousTemp = temp;
+		}
 	}
 
-	std::ifstream file("fan_speed.txt");
-	if (file.is_open())
+	if (!m_fanFile.is_open())
 	{
-		int fanSpeed;
-		file >> fanSpeed;
-		file.close();
-
-		m_fanProgress.SetPos(fanSpeed);
+		m_fanFile.open("fan_speed.txt");
 	}
+
+	std::string line;
+	if (std::getline(m_fanFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+
+		m_fanProgress.SetPos(temp);
+	}
+	else
+	{
+		m_fanFile.clear(); // Clear EOF flag
+		m_fanFile.seekg(0, std::ios::beg); // Reset to the beginning
+	}
+
+
 }
 
 void CMFCApplication1Dlg::UpdateTempProgress()
 {
-	std::ifstream file("temperature.txt");
-	if (file.is_open())
+	if (!m_tempFile.is_open())
 	{
-		// Read the temperature from the file
-		int temp;
-		file >> temp;
-		file.close();
+		m_tempFile.open("temperature.txt");
+	}
 
-		// If the temperature has changed, set the target temperature
-		if (temp != m_targetTemp)
-		{
-			m_targetTemp = temp;
-		}
-
-		// Gradually move towards the target temperature
-		if (m_currentTemp < m_targetTemp)
-			m_currentTemp++;  // Increase by 1
-		else if (m_currentTemp > m_targetTemp)
-			m_currentTemp--;  // Decrease by 1
-
-		// Update the progress bar with the new temperature
-		m_tempProgress.SetPos(m_currentTemp);
-
-		// Change progress bar color based on the current temperature
-		CWnd* pWnd = GetDlgItem(IDC_TEMP);
-		if (pWnd)
-		{
-			COLORREF color = RGB(0, 0, 255); // Blue
-			if (m_currentTemp > 60)
-				color = RGB(255, 0, 0); // Red
-			else if (m_currentTemp >= 50)
-				color = RGB(255, 165, 0); // Orange
-
-			CBrush brush(color);
-			CClientDC dc(pWnd);
-			CRect rect;
-			pWnd->GetClientRect(&rect);
-			dc.FillRect(&rect, &brush);
-		}
+	std::string line;
+	if (std::getline(m_tempFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+		m_tempProgress.SetPos(temp);
+	}
+	else
+	{
+		m_tempFile.clear(); // Clear EOF flag
+		m_tempFile.seekg(0, std::ios::beg); // Reset to the beginning
 	}
 }
 
@@ -187,24 +219,42 @@ void CMFCApplication1Dlg::UpdatePowerProgress()
 {
 	if (m_overridePower)
 	{
-		return; // Use manually set power value
+		// Continue reading the file but do not change the progress bar if the fan speed is overridden.
+		std::string line;
+		if (std::getline(m_powerFile, line))
+		{
+			int temp = std::stoi(line); // Process the temperature
+			if (temp < m_overridePower)
+			{
+				m_powerProgress.SetPos(temp);
+			}
+			m_previousTemp = temp;
+		}
 	}
 
-	std::ifstream file("power_usage.txt");
-	if (file.is_open())
+	if (!m_powerFile.is_open())
 	{
-		int powerUsage;
-		file >> powerUsage;
-		file.close();
+		m_powerFile.open("power_usage.txt");
+	}
 
-		m_powerProgress.SetPos(powerUsage);
+	std::string line;
+	if (std::getline(m_powerFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+		m_powerProgress.SetPos(temp);
+	}
+	else
+	{
+		m_powerFile.clear(); // Clear EOF flag
+		m_powerFile.seekg(0, std::ios::beg); // Reset to the beginning
 	}
 }
 
 void CMFCApplication1Dlg::OnDestroy()
 {
-	KillTimer(1);
 	CDialogEx::OnDestroy();
+	KillTimer(TEMP_UPDATE_TIMER);
+
 }
 
 void CMFCApplication1Dlg::OnEnChangeEdit1()
@@ -250,30 +300,23 @@ void CMFCApplication1Dlg::UpdateWiFiProgress()
 	if (!m_isWifiOn) // Stop updating if WiFi is off
 		return;
 
-	int wifiValue = 0; // Variable to hold WiFi usage value from the file
-	CStdioFile file;
-	CString line;
-
-	// Open and read the WiFi data file
-	if (file.Open(_T("wifi_data.txt"), CFile::modeRead | CFile::typeText))
+	if (!m_wifiFile.is_open())
 	{
-		if (file.ReadString(line)) // Read one line from the file
-		{
-			wifiValue = _ttoi(line); // Convert string to integer
+		m_wifiFile.open("wifi_data.txt");
+	}
 
-			// Ensure the value is within the range 0 to 100
-			if (wifiValue < 0) wifiValue = 0;
-			if (wifiValue > 100) wifiValue = 100;
-
-			m_wifiProgress.SetPos(wifiValue); // Update the progress bar
-		}
-		file.Close();
+	std::string line;
+	if (std::getline(m_wifiFile, line))
+	{
+		int temp = std::stoi(line); // Process the temperature
+		m_wifiProgress.SetPos(temp);
 	}
 	else
 	{
-		// Handle error if file is not found
-		m_isWifiOn = false; // Stop updating if the file is missing
+		m_wifiFile.clear(); // Clear EOF flag
+		m_wifiFile.seekg(0, std::ios::beg); // Reset to the beginning
 	}
+
 }
 
 void CMFCApplication1Dlg::OnBnClickedWifiOn()
