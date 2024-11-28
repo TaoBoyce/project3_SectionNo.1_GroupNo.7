@@ -132,7 +132,7 @@
     <ClInclude Include="Monitor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Monitor.cpp" />
+    <ClCompile Include="Tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
