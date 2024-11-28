@@ -6,11 +6,10 @@ template <typename T>
 class Monitor {
 private:
 	std::vector<T> data;
+public:
 	T parseData(std::string line);
-protected:
 	T getFlux();
 	std::vector<T> readFromFile(std::string filename);
-public:
 	Monitor();
 };
 

@@ -51,7 +51,7 @@ std::vector<T> Monitor<T>::readFromFile(std::string filename)
 	std::ifstream fin;
 	fin.open(filename);
 
-	if (!fin.is_open) {
+	if (!fin.is_open()) {
 		return data;
 	}
 
