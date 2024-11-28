@@ -18,4 +18,3 @@ template <>
 int Monitor<int>::parseData(std::string line);
 template <>
 float Monitor<float>::parseData(std::string line);
-
