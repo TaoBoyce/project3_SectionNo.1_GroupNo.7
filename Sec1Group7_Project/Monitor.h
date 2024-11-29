@@ -3,20 +3,18 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <string>
-#include <cstdlib>
 
 template <typename T>
 class Monitor {
 private:
 	std::vector<T> data;
 public:
-	T parseData(std::string line)
+	inline T parseData(std::string line)
 	{
 		//Non-supported type goes here
 		return T();
 	}
-	T getFlux()
+	inline T getFlux()
 	{
 		if (data.empty()) {
 			return T(); //returns empty if data is empty
@@ -24,7 +22,7 @@ public:
 		int entryNum = rand() % data.size();
 		return data[entryNum];
 	}
-	std::vector<T> readFromFile(std::string filename)
+	inline std::vector<T> readFromFile(std::string filename)
 	{
 		std::ifstream fin;
 		fin.open(filename);
@@ -51,14 +49,14 @@ public:
 		fin.close();
 		return data;
 	}
-	Monitor()
+	inline Monitor()
 	{
 		data.clear();
 	}
 };
 
 template <>
-int Monitor<int>::parseData(std::string line)
+inline int Monitor<int>::parseData(std::string line)
 {
 	//specification for integer type
 	int num = 0;
@@ -66,7 +64,7 @@ int Monitor<int>::parseData(std::string line)
 	return num;
 }
 template <>
-float Monitor<float>::parseData(std::string line)
+inline float Monitor<float>::parseData(std::string line)
 {
 	//specification for float type
 	float num = 0.0f;
