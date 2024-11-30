@@ -83,7 +83,7 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 	m_wifiFile.open("wifi_data.txt");
 
 	// Start timer for updates
-	SetTimer(TEMP_UPDATE_TIMER, 1000, nullptr); // 500ms interval
+	SetTimer(TEMP_UPDATE_TIMER, 1000, nullptr); // 1000ms interval
 
 	return TRUE;
 }
@@ -162,7 +162,9 @@ void CMFCApplication1Dlg::UpdateFanProgress()
 {
 	FanSpeedMonitor f;
 	f.setRPM(m_fanActualSpeed);
-	
+
+
+
 	if (m_overrideFanSpeed) {
 
 		int speed = f.getFluctuatingRPM();
@@ -255,7 +257,7 @@ void CMFCApplication1Dlg::OnEnChangeEdit2()
 	int fanSpeed = _ttoi(strValue);
 
 	FanSpeedMonitor f;
-	if(f.setRPM(fanSpeed)){
+	if (f.setRPM(fanSpeed)) {
 		m_overrideFanSpeed = true;
 		m_fanActualSpeed = f.getRPM();
 	}
