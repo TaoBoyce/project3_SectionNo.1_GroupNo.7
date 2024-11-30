@@ -164,7 +164,12 @@ void CMFCApplication1Dlg::UpdateFanProgress()
 	f.setRPM(m_fanActualSpeed);
 	
 	if (m_overrideFanSpeed) {
-		m_fanProgress.SetPos(f.getFluctuatingRPM());
+
+		int speed = f.getFluctuatingRPM();
+		double fanPerc = (double)speed / (double)MAX_FAN_RPM;
+		fanPerc = fanPerc * 100;
+
+		m_fanProgress.SetPos(fanPerc);
 	}
 
 }
@@ -255,7 +260,11 @@ void CMFCApplication1Dlg::OnEnChangeEdit2()
 		m_fanActualSpeed = f.getRPM();
 	}
 
-	m_fanProgress.SetPos(f.getFluctuatingRPM());
+	int speed = f.getFluctuatingRPM();
+	double fanPerc = (double)speed / (double)MAX_FAN_RPM;
+	fanPerc = fanPerc * 100;
+
+	m_fanProgress.SetPos(fanPerc);
 
 }
 
