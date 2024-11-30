@@ -56,6 +56,7 @@ protected:
 	int m_currentTemp;
 	int m_targetTemp;
 	int m_previousTemp;
+	int m_fanActualSpeed;
 
 	std::ifstream m_cpuFile;
 	std::ifstream m_gpuFile;

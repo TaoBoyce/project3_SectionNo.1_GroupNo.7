@@ -3,6 +3,7 @@
 #include "MFCApplication1.h"
 #include "MFCApplication1Dlg.h"
 #include "afxdialogex.h"
+#include "FanSpeedMonitor.h"
 #include<string>
 // For file operations
 
@@ -16,7 +17,7 @@
 // CMFCApplication1Dlg dialog
 CMFCApplication1Dlg::CMFCApplication1Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCAPPLICATION1_DIALOG, pParent),
-	m_cpuLimit(100), m_powerLimit(100), m_overrideFanSpeed(false), m_overridePower(false),
+	m_cpuLimit(100), m_powerLimit(100), m_fanActualSpeed(0), m_overrideFanSpeed(false), m_overridePower(false),
 	m_currentTemp(0), m_targetTemp(0) // Initialize temperature variables
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -159,39 +160,12 @@ void CMFCApplication1Dlg::UpdateGPUProgress()
 
 void CMFCApplication1Dlg::UpdateFanProgress()
 {
-	if (m_overrideFanSpeed)
-	{
-		// Continue reading the file but do not change the progress bar if the fan speed is overridden.
-		std::string line;
-		if (std::getline(m_fanFile, line))
-		{
-			int temp = std::stoi(line); // Process the temperature
-			if (temp < m_overrideFanSpeed)
-			{
-				m_fanProgress.SetPos(temp);
-			}
-			m_previousTemp = temp;
-		}
+	FanSpeedMonitor f;
+	f.setRPM(m_fanActualSpeed);
+	
+	if (m_overrideFanSpeed) {
+		m_fanProgress.SetPos(f.getFluctuatingRPM());
 	}
-
-	if (!m_fanFile.is_open())
-	{
-		m_fanFile.open("fan_speed.txt");
-	}
-
-	std::string line;
-	if (std::getline(m_fanFile, line))
-	{
-		int temp = std::stoi(line); // Process the temperature
-
-		m_fanProgress.SetPos(temp);
-	}
-	else
-	{
-		m_fanFile.clear(); // Clear EOF flag
-		m_fanFile.seekg(0, std::ios::beg); // Reset to the beginning
-	}
-
 
 }
 
@@ -275,11 +249,14 @@ void CMFCApplication1Dlg::OnEnChangeEdit2()
 	m_editFanSpeed.GetWindowText(strValue);
 	int fanSpeed = _ttoi(strValue);
 
-	if (fanSpeed >= 0 && fanSpeed <= 100)
-	{
-		m_fanProgress.SetPos(fanSpeed);
+	FanSpeedMonitor f;
+	if(f.setRPM(fanSpeed)){
 		m_overrideFanSpeed = true;
+		m_fanActualSpeed = f.getRPM();
 	}
+
+	m_fanProgress.SetPos(f.getFluctuatingRPM());
+
 }
 
 void CMFCApplication1Dlg::OnEnChangeEdit3()
